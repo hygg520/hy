@@ -7,7 +7,7 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/合并一个核弹.txt"))()
 ```
 
-### 浪费时间
+### 速度键盘w2
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/浪费时间.txt"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘.txt"))()
 ```
