@@ -11,7 +11,17 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/浪费时间.txt"))()
 ```
 
+### 出售柠檬
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/出售柠檬.txt"))()
+```
+
 ### 速度键盘2
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘2.txt"))()
+```
+
+### 免费弹出
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/免费弹出.txt"))()
 ```
