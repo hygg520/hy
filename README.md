@@ -20,6 +20,10 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘2.txt"))()
 ```
+### 偷一个蛋
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/偷一个蛋.txt"))()
+```
 
 ### 免费弹出
 ```lua
