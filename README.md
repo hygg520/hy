@@ -15,9 +15,13 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/出售柠檬.txt"))()
 ```
-### 英雄随机生成
+### 举起一个立方体
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/英雄随机生成.txt"))()
+```
+### 英雄随机生成
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/举起一个立方体.txt"))()
 ```
 
 ### 速度键盘2
