@@ -26,6 +26,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/举起一个立方体.txt"))()
 ```
 
+### 尺寸传奇模拟器
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/尺寸传奇模拟器.txt"))()
+```
+
 ### 速度键盘2
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘2.txt"))()
