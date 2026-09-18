@@ -44,3 +44,13 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/免费弹出.txt"))()
 ```
+
+### 将球踢向外太空
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/将球踢向外太空.txt"))()
+```
+
+### 用鱼换取垃圾
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/用鱼换取垃圾.txt"))()
+```
