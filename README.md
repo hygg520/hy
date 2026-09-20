@@ -31,6 +31,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/尺寸传奇模拟器.txt"))()
 ```
 
+### 每点击+1个矿井
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/每点击+1个矿井.txt"))()
+```
+
 ### 速度键盘2
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘2.txt"))()
@@ -53,4 +58,9 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 ### 用鱼换取垃圾
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/用鱼换取垃圾.txt"))()
+```
+
+### 骑宠物
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/骑宠物.txt"))()
 ```
