@@ -71,6 +71,9 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/骑宠物.txt"))()
 ```
 
-
+### 超高速跑者
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/超高速跑者.txt"))()
+```
 
 ### 26.10.11更新了一些PlaceId检查
