@@ -7,6 +7,7 @@
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/合并一个核弹.txt"))()
 ```
+
 ### 浪费时间
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/浪费时间.txt"))()
@@ -42,10 +43,16 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/扔一枚硬币.txt"))()
 ```
 
+### 忍者传奇
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/忍者传奇.txt"))()
+```
+
 ### 速度键盘2
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/速度键盘2.txt"))()
 ```
+
 ### 偷一个蛋
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/偷一个蛋.txt"))()
