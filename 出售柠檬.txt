@@ -1,1 +1,600 @@
-local PLACE_ID=79268393072444;if game.PlaceId~=PLACE_ID then pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title="无法加载服务器专属脚本",Text="请检查服务器是否与脚本匹配",Duration=8}) end) return end;local Players=game:GetService("Players");local ReplicatedStorage=game:GetService("ReplicatedStorage");local UserInputService=game:GetService("UserInputService");local VirtualInputManager=game:GetService("VirtualInputManager");local LocalPlayer=Players.LocalPlayer;local VirtualUser=game:GetService("VirtualUser");LocalPlayer.Idled:Connect(function() VirtualUser:CaptureController();VirtualUser:ClickButton2(Vector2.new()) end);local Rayfield=loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/Rayfield%20UI.txt"))();local Window=Rayfield:CreateWindow({Name="出售柠檬",LoadingTitle="hygg脚本",LoadingSubtitle="正在启动...",ConfigurationSaving={Enabled=false,FolderName=nil,FileName="xeeuyConfig"},Discord={Enabled=false,Invite="",RememberJoins=true},KeySystem=false});local MainTab=Window:CreateTab("主要功能");local Toggles={AutoRebirthToggle1={Value=false},AutoEvolveToggle1={Value=false},AutoAscendToggle1={Value=false},AutoPickupBagToggle1={Value=false},AutoUpgradeToggles1={Value=false},AutoPurchaseButtons1={Value=false},AutoWeakIncome1={Value=false},AutoBuyPowers1={Value=false},AutoColectFruitToggle1={Value=false}};local Options={RebirthMultiplerSlider1={Value=10}};MainTab:CreateSection("自动化");MainTab:CreateToggle({Name="自动重生",CurrentValue=false,Flag="AutoRebirthToggle1",Callback=function(Value) Toggles.AutoRebirthToggle1.Value=Value end});MainTab:CreateSlider({Name="重生间隔（分钟）",Range={3,180},Increment=1,Suffix="分钟",CurrentValue=10,Flag="RebirthMultiplerSlider1",Callback=function(Value) Options.RebirthMultiplerSlider1.Value=Value end});MainTab:CreateDivider();MainTab:CreateToggle({Name="自动进化",CurrentValue=false,Flag="AutoEvolveToggle1",Callback=function(Value) Toggles.AutoEvolveToggle1.Value=Value end});MainTab:CreateDivider();MainTab:CreateToggle({Name="自动飞升",CurrentValue=false,Flag="AutoAscendToggle1",Callback=function(Value) Toggles.AutoAscendToggle1.Value=Value end});MainTab:CreateDivider();MainTab:CreateToggle({Name="自动拾取钱袋子",CurrentValue=false,Flag="AutoPickupBagToggle1",Callback=function(Value) Toggles.AutoPickupBagToggle1.Value=Value end});MainTab:CreateDivider();MainTab:CreateToggle({Name="自动升级收入",CurrentValue=false,Flag="AutoUpgradeToggles1",Callback=function(Value) Toggles.AutoUpgradeToggles1.Value=Value end});MainTab:CreateToggle({Name="自动购买按钮",CurrentValue=false,Flag="AutoPurchaseButtons1",Callback=function(Value) Toggles.AutoPurchaseButtons1.Value=Value end});MainTab:CreateToggle({Name="自动唤醒收入",CurrentValue=false,Flag="AutoWeakIncome1",Callback=function(Value) Toggles.AutoWeakIncome1.Value=Value end});MainTab:CreateToggle({Name="自动升级果实价值",CurrentValue=false,Flag="AutoBuyPowers1",Callback=function(Value) Toggles.AutoBuyPowers1.Value=Value end});MainTab:CreateSection("收集");local fruitGui=nil;local fruitActive=false;local fruitThread=nil;local function stopPickFruit() fruitActive=false;if fruitThread then pcall(function() coroutine.close(fruitThread) end);fruitThread=nil end end;local function startPickFruit() if fruitActive then return end;fruitActive=true;fruitThread=task.spawn(function() local character=LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait();local hrp=character:WaitForChild("HumanoidRootPart");local fruitBlacklist={};while fruitActive do local allFruits={};for _,tycoon in pairs(workspace:GetChildren()) do if tycoon.Name:match("Tycoon") then local constant=tycoon:FindFirstChild("Constant");if constant then local trees=constant:FindFirstChild("Trees");if trees then for _,tree in pairs(trees:GetChildren()) do if tree.Name=="LemonTree" then local fruitFolder=tree:FindFirstChild("Fruit");if fruitFolder then for _,fruit in pairs(fruitFolder:GetChildren()) do if not table.find(fruitBlacklist,fruit) then table.insert(allFruits,fruit) end end end end end end end end end;if not fruitActive then break end;if #allFruits==0 then fruitBlacklist={};task.wait(1);continue end;local nearestFruit=nil;local nearestDist=math.huge;for _,fruit in pairs(allFruits) do local fruitPos=fruit:GetPivot().Position;local dist=(fruitPos-hrp.Position).Magnitude;if dist<nearestDist then nearestDist=dist;nearestFruit=fruit end end;if not nearestFruit then fruitBlacklist={};task.wait(1);continue end;table.insert(fruitBlacklist,nearestFruit);local fruitPos=nearestFruit:GetPivot().Position;if not fruitActive then break end;pcall(function() hrp.CFrame=CFrame.new(fruitPos-Vector3.new(0,2,0)) end);task.wait(0.3);if not fruitActive then break end;pcall(function() ReplicatedStorage.Core.CharacterIK.UpdateLook:FireServer(character,fruitPos) end);task.wait(0.2);local clickDetector=nearestFruit:FindFirstChild("ClickFruitPart",true);if not clickDetector then clickDetector=nearestFruit:FindFirstChild("ClickDetector",true) end;if clickDetector then local startTime=tick();while nearestFruit.Parent and tick()-startTime<3 and fruitActive do pcall(function() if clickDetector:IsA("ClickDetector") then fireclickdetector(clickDetector) elseif clickDetector:IsA("Part") and clickDetector:FindFirstChild("ClickDetector") then fireclickdetector(clickDetector.ClickDetector) end end);VirtualInputManager:SendKeyEvent(true,Enum.KeyCode.E,false,game);task.wait(0.05);VirtualInputManager:SendKeyEvent(false,Enum.KeyCode.E,false,game);task.wait(0.05);local fruitScreenPos,onScreen=workspace.CurrentCamera:WorldToViewportPoint(fruitPos);if onScreen then VirtualInputManager:SendMouseButtonEvent(fruitScreenPos.X,fruitScreenPos.Y,0,true,game,0);task.wait(0.05);VirtualInputManager:SendMouseButtonEvent(fruitScreenPos.X,fruitScreenPos.Y,0,false,game,0);task.wait(0.05) end end end;task.wait(0.3) end end) end;local function createFruitGui() if fruitGui then return end;local gui=Instance.new("ScreenGui");gui.Name="MiniToggleGui";gui.ResetOnSpawn=false;gui.IgnoreGuiInset=true;gui.Parent=LocalPlayer:WaitForChild("PlayerGui");local frame=Instance.new("Frame");frame.Size=UDim2.new(0,100,0,40);frame.Position=UDim2.new(0,12,0,60);frame.BackgroundColor3=Color3.fromRGB(15,15,15);frame.BorderSizePixel=0;frame.Active=true;frame.Parent=gui;local corner=Instance.new("UICorner");corner.CornerRadius=UDim.new(0,8);corner.Parent=frame;local stroke=Instance.new("UIStroke");stroke.Color=Color3.fromRGB(60,60,60);stroke.Thickness=1;stroke.Parent=frame;local toggleBtn=Instance.new("TextButton");toggleBtn.Size=UDim2.new(1,-12,1,-12);toggleBtn.Position=UDim2.new(0,6,0,6);toggleBtn.BackgroundColor3=Color3.fromRGB(40,40,40);toggleBtn.Text="关";toggleBtn.TextColor3=Color3.fromRGB(200,200,200);toggleBtn.Font=Enum.Font.GothamBold;toggleBtn.TextSize=12;toggleBtn.AutoButtonColor=false;toggleBtn.Parent=frame;local btnCorner=Instance.new("UICorner");btnCorner.CornerRadius=UDim.new(0,6);btnCorner.Parent=toggleBtn;local dragging=false;local dragStart=nil;local startPos=nil;local dragMoved=false;local pressPos=nil;local function beginDrag(input) dragging=true;dragStart=input.Position;startPos=frame.Position;pressPos=input.Position;dragMoved=false end;local function updateDrag(input) if not dragging then return end;local delta=input.Position-dragStart;if (input.Position-pressPos).Magnitude>5 then dragMoved=true end;frame.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y) end;local function endDrag() dragging=false;dragStart=nil;startPos=nil end;toggleBtn.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then beginDrag(input) end end);UserInputService.InputChanged:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then updateDrag(input) end end);UserInputService.InputEnded:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then endDrag() end end);toggleBtn.MouseButton1Click:Connect(function() if dragMoved then dragMoved=false;return end;local active=not fruitActive;if active then toggleBtn.Text="开";toggleBtn.TextColor3=Color3.fromRGB(255,255,255);startPickFruit() else toggleBtn.Text="关";toggleBtn.TextColor3=Color3.fromRGB(200,200,200);stopPickFruit() end end);gui.Destroying:Connect(function() stopPickFruit();if fruitGui==gui then fruitGui=nil end end);fruitGui=gui end;local function destroyFruitGui() if fruitGui then pcall(function() fruitGui:Destroy() end);fruitGui=nil end;stopPickFruit() end;MainTab:CreateToggle({Name="自动收集水果",CurrentValue=false,Flag="AutoColectFruitToggle1",Callback=function(Value) Toggles.AutoColectFruitToggle1.Value=Value;if Value then createFruitGui() else destroyFruitGui() end end});task.spawn(function() local OwnerTycoon=nil;while OwnerTycoon==nil do task.wait(0.5);for i,v in pairs(game.Workspace:GetChildren()) do if v.Name:match("Tycoon") then local Owner=v:FindFirstChild("Owner");if Owner and Owner.Value==LocalPlayer then OwnerTycoon=v;break end end end end;local function checkLastButton() local success,isConditionMet=pcall(function() local lastButton=OwnerTycoon.Purchases.Staircase.Buttons.Structure["Staircase Platform Final"];if lastButton:GetAttribute("Purchased")==true then return true elseif lastButton:GetAttribute("Shown")==true then return true else return false end end);return success and isConditionMet end;local getPotentialInvestors=filtergc("function",{Name="GetPotentialInvestors"},true);local getInvestors=filtergc("function",{Name="GetInvestors"},true);local registries=filtergc("table",{Keys={"RebirthRemote","BonusChanged","Destroying","Root","RebirthAvailable","Discovered","Maid","Rebirthed"}});local balances=filtergc("table",{Keys={"CashChanged","CashSpentChanged"}});local Balance=require(game:GetService("ReplicatedStorage").Balance);local ReplicatedStorage=game:GetService("ReplicatedStorage");local Tycoon=require(ReplicatedStorage.Modules.Tycoon.Tycoon);local TycoonAnalyzer=require(ReplicatedStorage.Modules.Tycoon.Component.TycoonAnalyzer);local TycoonRoot=Tycoon.getLocal();local Purchases=TycoonRoot:GetComponent(TycoonAnalyzer):GetPurchases();local Huge=require(game:GetService("ReplicatedStorage").Modules.Huge);local AutoUpgradeOptions={"Lemon Republic","LemonX","LemonDash","LemonRobotics","Lemon Stand","Lemon Trading","Lemon Depot","Lemon Labs"};local function CheckCountForRebirth() local current=getInvestors(balances[10]);if current and current>Huge.toHuge(10^84) then return true end;return false end;local function doAutoRebirth() local tycoons={};for _,obj in ipairs(workspace:GetChildren()) do if obj.Name:match("^Tycoon%d+$") then table.insert(tycoons,obj) end end;table.sort(tycoons,function(a,b) local na=tonumber(a.Name:match("%d+")) or 0;local nb=tonumber(b.Name:match("%d+")) or 0;return na<nb end);if #tycoons==0 then return 0,0,0 end;local okCount,failCount,skipCount=0,0,0;for _,t in ipairs(tycoons) do local remotes=t:FindFirstChild("Remotes");local rebirth=remotes and remotes:FindFirstChild("Rebirth");if rebirth then local success=pcall(function() rebirth:InvokeServer() end);if success then okCount=okCount+1 else failCount=failCount+1 end else skipCount=skipCount+1 end;task.wait(0.1) end;return okCount,failCount,skipCount end;task.spawn(function() local elapsed=0;while task.wait(1) do if Toggles.AutoRebirthToggle1.Value then elapsed=elapsed+1;local needSeconds=Options.RebirthMultiplerSlider1.Value*60;if elapsed>=needSeconds then elapsed=0;pcall(doAutoRebirth) end else elapsed=0 end end end);task.spawn(function() while wait(1) do if Toggles.AutoEvolveToggle1.Value then if not checkLastButton() and not CheckCountForRebirth() then pcall(function() OwnerTycoon:WaitForChild("Remotes"):WaitForChild("Evolve"):InvokeServer() end) end end end end);task.spawn(function() while wait(1) do if Toggles.AutoWeakIncome1.Value then pcall(function() OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonStand");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonX");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonRepublic");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonDash");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonRobotics");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonTrading");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonDepot");OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonLabs") end) end end end);task.spawn(function() while true do task.wait();if Toggles.AutoPurchaseButtons1.Value then for index,purchase in pairs(Balance.PurchaseOrder) do local buttonTable=Purchases[purchase];if buttonTable and buttonTable:IsEnabled() and not buttonTable:IsPurchased() then pcall(function() buttonTable:TryPurchaseAsync() end) end end end end end);task.spawn(function() while true do wait(1);if Toggles.AutoUpgradeToggles1.Value then for i,v in pairs(OwnerTycoon.Purchases:GetDescendants()) do if v.Name=="Upgrade" and v.Parent and table.find(AutoUpgradeOptions,v.Parent.Name) then pcall(function() v:InvokeServer(1);v:InvokeServer(5);v:InvokeServer(25);v:InvokeServer(100);v:InvokeServer(500) end) end end end end end);task.spawn(function() while wait(1) do if Toggles.AutoAscendToggle1.Value then pcall(function() OwnerTycoon:WaitForChild("Remotes"):WaitForChild("Ascend"):InvokeServer() end) end end end);task.spawn(function() while wait(1) do if Toggles.AutoBuyPowers1.Value then pcall(function() OwnerTycoon:WaitForChild("Remotes"):WaitForChild("UpgradePowerLevel"):InvokeServer("ClickFruitValue") end) end end end);local bagExclude={"hitbox","spawnbox","textbox","soundbox","skybox","toolbox","gui","billboard","attachment","value","script","module","folder","camera","light","particle","effect","decal","texture","mesh","humanoid","character","player","npc","dummy","baseplate","terrain","spawn","checkpoint","backpack","inventory","hotbar","slot","ui","baggage"};local function isBagObj(obj) if not (obj:IsA("Model") or obj:IsA("BasePart")) then return false end;local name=string.lower(obj.Name);for _,ex in ipairs(bagExclude) do if string.find(name,ex,1,true) then return false end end;return string.find(name,"bag",1,true)~=nil end;local function getBagPos(obj) if obj:IsA("BasePart") then return obj.Position elseif obj:IsA("Model") then local ok,cf=pcall(function() return obj:GetBoundingBox() end);if ok then return cf.Position end end;return nil end;local function getRoot() local c=LocalPlayer.Character;return c and c:FindFirstChild("HumanoidRootPart") end;local bagPending=false;local bagConn=nil;local function onNewBag(obj) if not Toggles.AutoPickupBagToggle1.Value then return end;if not isBagObj(obj) then return end;if bagPending then return end;bagPending=true;task.spawn(function() task.wait(0.1);if not Toggles.AutoPickupBagToggle1.Value then bagPending=false;return end;local pos=getBagPos(obj);local myRoot=getRoot();if pos and myRoot then local originCF=myRoot.CFrame;myRoot.CFrame=CFrame.new(pos+Vector3.new(0,3,0));task.wait(1.5);if myRoot and myRoot.Parent then myRoot.CFrame=originCF end end;bagPending=false end) end;task.spawn(function() local wasOn=false;while task.wait(0.5) do local on=Toggles.AutoPickupBagToggle1.Value;if on and not wasOn then if bagConn then bagConn:Disconnect() end;bagConn=workspace.DescendantAdded:Connect(onNewBag);for _,obj in ipairs(workspace:GetDescendants()) do if isBagObj(obj) then onNewBag(obj);break end end elseif not on and wasOn then if bagConn then bagConn:Disconnect();bagConn=nil end;bagPending=false end;wasOn=on end end) end;task.wait(1);game:GetService("StarterGui"):SetCore("SendNotification",{Title="脚本运行成功",Text="使用愉快",Duration=10})
+local PLACE_ID = 79268393072444
+if game.PlaceId ~= PLACE_ID then
+	pcall(function()
+		game:GetService("StarterGui"):SetCore("SendNotification", {
+			Title = "无法加载服务器专属脚本",
+			Text = "请检查服务器是否与脚本匹配",
+			Duration = 8
+		})
+	end)
+	return
+end
+
+local VirtualUser = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+LocalPlayer.Idled:Connect(function()
+	VirtualUser:CaptureController()
+	VirtualUser:ClickButton2(Vector2.new())
+end)
+
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/Rayfield%20UI.txt"))()
+
+local Window = Rayfield:CreateWindow({
+	Name = "出售柠檬",
+	LoadingTitle = "hygg脚本",
+	LoadingSubtitle = "正在启动...",
+	ConfigurationSaving = {
+		Enabled = false,
+		FolderName = nil,
+		FileName = "xeeuyConfig"
+	},
+	Discord = {
+		Enabled = false,
+		Invite = "",
+		RememberJoins = true
+	},
+	KeySystem = false
+})
+
+local MainTab = Window:CreateTab("主要功能")
+
+local Toggles = {
+	AutoRebirthToggle1 = { Value = false },
+	AutoEvolveToggle1 = { Value = false },
+	AutoAscendToggle1 = { Value = false },
+	AutoPickupBagToggle1 = { Value = false },
+	AutoUpgradeToggles1 = { Value = false },
+	AutoPurchaseButtons1 = { Value = false },
+	AutoWeakIncome1 = { Value = false },
+	AutoBuyPowers1 = { Value = false },
+	MiniToggleGuiToggle1 = { Value = false }
+}
+
+local Options = {
+	RebirthMultiplerSlider1 = { Value = 10 }
+}
+
+MainTab:CreateSection("自动化")
+
+MainTab:CreateToggle({
+	Name = "自动重生",
+	CurrentValue = false,
+	Flag = "AutoRebirthToggle1",
+	Callback = function(Value)
+		Toggles.AutoRebirthToggle1.Value = Value
+	end
+})
+
+MainTab:CreateSlider({
+	Name = "重生间隔（分钟）",
+	Range = {3, 180},
+	Increment = 1,
+	Suffix = "分钟",
+	CurrentValue = 10,
+	Flag = "RebirthMultiplerSlider1",
+	Callback = function(Value)
+		Options.RebirthMultiplerSlider1.Value = Value
+	end
+})
+
+MainTab:CreateDivider()
+
+MainTab:CreateToggle({
+	Name = "自动进化",
+	CurrentValue = false,
+	Flag = "AutoEvolveToggle1",
+	Callback = function(Value)
+		Toggles.AutoEvolveToggle1.Value = Value
+	end
+})
+
+MainTab:CreateDivider()
+
+MainTab:CreateToggle({
+	Name = "自动飞升",
+	CurrentValue = false,
+	Flag = "AutoAscendToggle1",
+	Callback = function(Value)
+		Toggles.AutoAscendToggle1.Value = Value
+	end
+})
+
+MainTab:CreateDivider()
+
+MainTab:CreateToggle({
+	Name = "自动拾取钱袋子",
+	CurrentValue = false,
+	Flag = "AutoPickupBagToggle1",
+	Callback = function(Value)
+		Toggles.AutoPickupBagToggle1.Value = Value
+	end
+})
+
+MainTab:CreateDivider()
+
+MainTab:CreateToggle({
+	Name = "自动升级收入",
+	CurrentValue = false,
+	Flag = "AutoUpgradeToggles1",
+	Callback = function(Value)
+		Toggles.AutoUpgradeToggles1.Value = Value
+	end
+})
+
+MainTab:CreateToggle({
+	Name = "自动购买按钮",
+	CurrentValue = false,
+	Flag = "AutoPurchaseButtons1",
+	Callback = function(Value)
+		Toggles.AutoPurchaseButtons1.Value = Value
+	end
+})
+
+MainTab:CreateToggle({
+	Name = "自动唤醒收入",
+	CurrentValue = false,
+	Flag = "AutoWeakIncome1",
+	Callback = function(Value)
+		Toggles.AutoWeakIncome1.Value = Value
+	end
+})
+
+MainTab:CreateToggle({
+	Name = "自动升级果实价值",
+	CurrentValue = false,
+	Flag = "AutoBuyPowers1",
+	Callback = function(Value)
+		Toggles.AutoBuyPowers1.Value = Value
+	end
+})
+
+MainTab:CreateSection("收集")
+
+-- 生成/销毁 迷你开关 GUI
+local MiniToggleGuiRef = nil
+
+local function createMiniToggleGui()
+	if MiniToggleGuiRef and MiniToggleGuiRef.Parent then
+		return
+	end
+
+	local playerGui = LocalPlayer:WaitForChild("PlayerGui")
+	local existing = playerGui:FindFirstChild("MiniToggleGui")
+	if existing then
+		existing:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "MiniToggleGui"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.Parent = playerGui
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 100, 0, 40)
+	frame.Position = UDim2.new(0, 12, 0, 60)
+	frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+	frame.BorderSizePixel = 0
+	frame.Active = true
+	frame.Parent = gui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 8)
+	corner.Parent = frame
+
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(60, 60, 60)
+	stroke.Thickness = 1
+	stroke.Parent = frame
+
+	local toggleBtn = Instance.new("TextButton")
+	toggleBtn.Size = UDim2.new(1, -12, 1, -12)
+	toggleBtn.Position = UDim2.new(0, 6, 0, 6)
+	toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	toggleBtn.Text = "关"
+	toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+	toggleBtn.Font = Enum.Font.GothamBold
+	toggleBtn.TextSize = 12
+	toggleBtn.AutoButtonColor = false
+	toggleBtn.Parent = frame
+
+	local btnCorner = Instance.new("UICorner")
+	btnCorner.CornerRadius = UDim.new(0, 6)
+	btnCorner.Parent = toggleBtn
+
+	local dragging = false
+	local dragStart = nil
+	local startPos = nil
+	local dragMoved = false
+	local pressPos = nil
+
+	local function beginDrag(input)
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		pressPos = input.Position
+		dragMoved = false
+	end
+
+	local function updateDrag(input)
+		if not dragging then return end
+		local delta = input.Position - dragStart
+		if (input.Position - pressPos).Magnitude > 5 then
+			dragMoved = true
+		end
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+
+	local function endDrag()
+		dragging = false
+		dragStart = nil
+		startPos = nil
+	end
+
+	toggleBtn.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			beginDrag(input)
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			updateDrag(input)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			endDrag()
+		end
+	end)
+
+	local active = false
+	toggleBtn.MouseButton1Click:Connect(function()
+		if dragMoved then
+			dragMoved = false
+			return
+		end
+		active = not active
+		if active then
+			toggleBtn.Text = "开"
+			toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		else
+			toggleBtn.Text = "关"
+			toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+		end
+	end)
+
+	MiniToggleGuiRef = gui
+end
+
+local function destroyMiniToggleGui()
+	local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+	if playerGui then
+		local existing = playerGui:FindFirstChild("MiniToggleGui")
+		if existing then
+			existing:Destroy()
+		end
+	end
+	MiniToggleGuiRef = nil
+end
+
+MainTab:CreateToggle({
+	Name = "生成开关GUI",
+	CurrentValue = false,
+	Flag = "MiniToggleGuiToggle1",
+	Callback = function(Value)
+		Toggles.MiniToggleGuiToggle1.Value = Value
+		if Value then
+			createMiniToggleGui()
+		else
+			destroyMiniToggleGui()
+		end
+	end
+})
+
+-- 其余逻辑保持不变
+task.spawn(function()
+	local OwnerTycoon = nil
+	while OwnerTycoon == nil do
+		task.wait(0.5)
+		for i, v in pairs(game.Workspace:GetChildren()) do
+			if v.Name:match("Tycoon") then
+				local Owner = v:FindFirstChild("Owner")
+				if Owner and Owner.Value == LocalPlayer then
+					OwnerTycoon = v
+					break
+				end
+			end
+		end
+	end
+
+	local function checkLastButton()
+		local success, isConditionMet = pcall(function()
+			local lastButton = OwnerTycoon.Purchases.Staircase.Buttons.Structure["Staircase Platform Final"]
+			if lastButton:GetAttribute("Purchased") == true then
+				return true
+			elseif lastButton:GetAttribute("Shown") == true then
+				return true
+			else
+				return false
+			end
+		end)
+		return success and isConditionMet
+	end
+
+	local getPotentialInvestors = filtergc("function", {Name = "GetPotentialInvestors"}, true)
+	local getInvestors = filtergc("function", {Name = "GetInvestors"}, true)
+	local registries = filtergc("table", {Keys = {"RebirthRemote", "BonusChanged", "Destroying", "Root", "RebirthAvailable", "Discovered", "Maid", "Rebirthed"}})
+	local balances = filtergc("table", {Keys = {"CashChanged", "CashSpentChanged"}})
+	local Balance = require(game:GetService("ReplicatedStorage").Balance)
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Tycoon = require(ReplicatedStorage.Modules.Tycoon.Tycoon)
+	local TycoonAnalyzer = require(ReplicatedStorage.Modules.Tycoon.Component.TycoonAnalyzer)
+	local TycoonRoot = Tycoon.getLocal()
+	local Purchases = TycoonRoot:GetComponent(TycoonAnalyzer):GetPurchases()
+	local Huge = require(game:GetService("ReplicatedStorage").Modules.Huge)
+
+	local AutoUpgradeOptions = {
+		"Lemon Republic",
+		"LemonX",
+		"LemonDash",
+		"Lemon Robotics",
+		"Lemon Stand",
+		"Lemon Trading",
+		"Lemon Depot",
+		"Lemon Labs"
+	}
+
+	local function CheckCountForRebirth()
+		local current = getInvestors(balances[10])
+		if current and current > Huge.toHuge(10^84) then
+			return true
+		end
+		return false
+	end
+
+	local function doAutoRebirth()
+		local tycoons = {}
+		for _, obj in ipairs(workspace:GetChildren()) do
+			if obj.Name:match("^Tycoon%d+$") then
+				table.insert(tycoons, obj)
+			end
+		end
+		table.sort(tycoons, function(a, b)
+			local na = tonumber(a.Name:match("%d+")) or 0
+			local nb = tonumber(b.Name:match("%d+")) or 0
+			return na < nb
+		end)
+		if #tycoons == 0 then return 0, 0, 0 end
+		local okCount, failCount, skipCount = 0, 0, 0
+		for _, t in ipairs(tycoons) do
+			local remotes = t:FindFirstChild("Remotes")
+			local rebirth = remotes and remotes:FindFirstChild("Rebirth")
+			if rebirth then
+				local success = pcall(function()
+					rebirth:InvokeServer()
+				end)
+				if success then
+					okCount = okCount + 1
+				else
+					failCount = failCount + 1
+				end
+			else
+				skipCount = skipCount + 1
+			end
+			task.wait(0.1)
+		end
+		return okCount, failCount, skipCount
+	end
+
+	task.spawn(function()
+		local elapsed = 0
+		while task.wait(1) do
+			if Toggles.AutoRebirthToggle1.Value then
+				elapsed = elapsed + 1
+				local needSeconds = Options.RebirthMultiplerSlider1.Value * 60
+				if elapsed >= needSeconds then
+					elapsed = 0
+					pcall(doAutoRebirth)
+				end
+			else
+				elapsed = 0
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while wait(1) do
+			if Toggles.AutoEvolveToggle1.Value then
+				if not checkLastButton() and not CheckCountForRebirth() then
+					pcall(function()
+						OwnerTycoon:WaitForChild("Remotes"):WaitForChild("Evolve"):InvokeServer()
+					end)
+				end
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while wait(1) do
+			if Toggles.AutoWeakIncome1.Value then
+				pcall(function()
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonStand")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonX")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonRepublic")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonDash")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonRobotics")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonTrading")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonDepot")
+					OwnerTycoon.Remotes.WakeIncomeStream:InvokeServer("LemonLabs")
+				end)
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while true do
+			task.wait()
+			if Toggles.AutoPurchaseButtons1.Value then
+				for index, purchase in pairs(Balance.PurchaseOrder) do
+					local buttonTable = Purchases[purchase]
+					if buttonTable and buttonTable:IsEnabled() and not buttonTable:IsPurchased() then
+						pcall(function()
+							buttonTable:TryPurchaseAsync()
+						end)
+					end
+				end
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while true do
+			wait(1)
+			if Toggles.AutoUpgradeToggles1.Value then
+				for i, v in pairs(OwnerTycoon.Purchases:GetDescendants()) do
+					if v.Name == "Upgrade" and v.Parent and table.find(AutoUpgradeOptions, v.Parent.Name) then
+						pcall(function()
+							v:InvokeServer(1)
+							v:InvokeServer(5)
+							v:InvokeServer(25)
+							v:InvokeServer(100)
+							v:InvokeServer(500)
+						end)
+					end
+				end
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while wait(1) do
+			if Toggles.AutoAscendToggle1.Value then
+				pcall(function()
+					OwnerTycoon:WaitForChild("Remotes"):WaitForChild("Ascend"):InvokeServer()
+				end)
+			end
+		end
+	end)
+
+	task.spawn(function()
+		while wait(1) do
+			if Toggles.AutoBuyPowers1.Value then
+				pcall(function()
+					OwnerTycoon:WaitForChild("Remotes"):WaitForChild("UpgradePowerLevel"):InvokeServer("ClickFruitValue")
+				end)
+			end
+		end
+	end)
+
+	-- 自动拾取钱袋子（保留原逻辑）
+	local bagExclude = {
+		"hitbox", "spawnbox", "textbox", "soundbox", "skybox", "toolbox",
+		"gui", "billboard", "attachment", "value", "script", "module",
+		"folder", "camera", "light", "particle", "effect", "decal",
+		"texture", "mesh", "humanoid", "character", "player", "npc",
+		"dummy", "baseplate", "terrain", "spawn", "checkpoint",
+		"backpack", "inventory", "hotbar", "slot", "ui", "baggage",
+	}
+
+	local function isBagObj(obj)
+		if not (obj:IsA("Model") or obj:IsA("BasePart")) then
+			return false
+		end
+		local name = string.lower(obj.Name)
+		for _, ex in ipairs(bagExclude) do
+			if string.find(name, ex, 1, true) then
+				return false
+			end
+		end
+		return string.find(name, "bag", 1, true) ~= nil
+	end
+
+	local function getBagPos(obj)
+		if obj:IsA("BasePart") then
+			return obj.Position
+		elseif obj:IsA("Model") then
+			local ok, cf = pcall(function()
+				return obj:GetBoundingBox()
+			end)
+			if ok then
+				return cf.Position
+			end
+		end
+		return nil
+	end
+
+	local function getRoot()
+		local c = LocalPlayer.Character
+		return c and c:FindFirstChild("HumanoidRootPart")
+	end
+
+	local bagPending = false
+	local bagConn = nil
+
+	local function onNewBag(obj)
+		if not Toggles.AutoPickupBagToggle1.Value then return end
+		if not isBagObj(obj) then return end
+		if bagPending then return end
+		bagPending = true
+		task.spawn(function()
+			task.wait(0.1)
+			if not Toggles.AutoPickupBagToggle1.Value then
+				bagPending = false
+				return
+			end
+			local pos = getBagPos(obj)
+			local myRoot = getRoot()
+			if pos and myRoot then
+				local originCF = myRoot.CFrame
+				myRoot.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
+				task.wait(1.5)
+				if myRoot and myRoot.Parent then
+					myRoot.CFrame = originCF
+				end
+			end
+			bagPending = false
+		end)
+	end
+
+	task.spawn(function()
+		local wasOn = false
+		while task.wait(0.5) do
+			local on = Toggles.AutoPickupBagToggle1.Value
+			if on and not wasOn then
+				if bagConn then
+					bagConn:Disconnect()
+				end
+				bagConn = workspace.DescendantAdded:Connect(onNewBag)
+				for _, obj in ipairs(workspace:GetDescendants()) do
+					if isBagObj(obj) then
+						onNewBag(obj)
+						break
+					end
+				end
+			elseif not on and wasOn then
+				if bagConn then
+					bagConn:Disconnect()
+					bagConn = nil
+				end
+				bagPending = false
+			end
+			wasOn = on
+		end
+	end)
+end)
+
+task.wait(1)
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "脚本运行成功",
+	Text = "使用愉快",
+	Duration = 10
+})
