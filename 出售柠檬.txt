@@ -13,6 +13,9 @@ end
 local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 LocalPlayer.Idled:Connect(function()
 	VirtualUser:CaptureController()
@@ -173,7 +176,7 @@ local function createMiniToggleGui()
 	gui.Parent = playerGui
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.new(0, 100, 0, 40)
+	frame.Size = UDim2.new(0, 120, 0, 44)
 	frame.Position = UDim2.new(0, 12, 0, 60)
 	frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 	frame.BorderSizePixel = 0
@@ -193,7 +196,7 @@ local function createMiniToggleGui()
 	toggleBtn.Size = UDim2.new(1, -12, 1, -12)
 	toggleBtn.Position = UDim2.new(0, 6, 0, 6)
 	toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-	toggleBtn.Text = "关"
+	toggleBtn.Text = "自动摘柠檬：关"
 	toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 	toggleBtn.Font = Enum.Font.GothamBold
 	toggleBtn.TextSize = 12
@@ -256,19 +259,138 @@ local function createMiniToggleGui()
 		end
 	end)
 
+	local pickThread = nil
 	local active = false
+
+	local function stopPick()
+		active = false
+		if pickThread then
+			pcall(function() coroutine.close(pickThread) end)
+			pickThread = nil
+		end
+		toggleBtn.Text = "自动摘柠檬：关"
+		toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	end
+
+	local function startPick()
+		active = true
+		toggleBtn.Text = "自动摘柠檬：开"
+		toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 60)
+
+		pickThread = task.spawn(function()
+			local fruitBlacklist = {}
+			while active do
+				local char = LocalPlayer.Character
+				local root = char and char:FindFirstChild("HumanoidRootPart")
+				if not root then
+					task.wait(1)
+					continue
+				end
+
+				local allFruits = {}
+				for _, tycoon in pairs(workspace:GetChildren()) do
+					if tycoon.Name:match("Tycoon") then
+						local constant = tycoon:FindFirstChild("Constant")
+						if constant then
+							local trees = constant:FindFirstChild("Trees")
+							if trees then
+								for _, tree in pairs(trees:GetChildren()) do
+									if tree.Name == "LemonTree" then
+										local fruitFolder = tree:FindFirstChild("Fruit")
+										if fruitFolder then
+											for _, fruit in pairs(fruitFolder:GetChildren()) do
+												if not table.find(fruitBlacklist, fruit) then
+													table.insert(allFruits, fruit)
+												end
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+
+				if #allFruits == 0 then
+					fruitBlacklist = {}
+					task.wait(1)
+					continue
+				end
+
+				local nearestFruit = nil
+				local nearestDist = math.huge
+				for _, fruit in pairs(allFruits) do
+					local ok, pivot = pcall(function() return fruit:GetPivot() end)
+					if ok and pivot then
+						local dist = (pivot.Position - root.Position).Magnitude
+						if dist < nearestDist then
+							nearestDist = dist
+							nearestFruit = fruit
+						end
+					end
+				end
+
+				if not nearestFruit then
+					fruitBlacklist = {}
+					task.wait(1)
+					continue
+				end
+
+				table.insert(fruitBlacklist, nearestFruit)
+				local fruitPos = nearestFruit:GetPivot().Position
+				root.CFrame = CFrame.new(fruitPos - Vector3.new(0, 2, 0))
+				task.wait(0.3)
+
+				pcall(function()
+					ReplicatedStorage.Core.CharacterIK.UpdateLook:FireServer(char, fruitPos)
+				end)
+				task.wait(0.2)
+
+				local clickDetector = nearestFruit:FindFirstChild("ClickFruitPart", true)
+				if not clickDetector then
+					clickDetector = nearestFruit:FindFirstChild("ClickDetector", true)
+				end
+
+				if clickDetector then
+					local startTime = tick()
+					while nearestFruit.Parent and tick() - startTime < 3 and active do
+						pcall(function()
+							if clickDetector:IsA("ClickDetector") then
+								fireclickdetector(clickDetector)
+							elseif clickDetector:IsA("Part") and clickDetector:FindFirstChild("ClickDetector") then
+								fireclickdetector(clickDetector.ClickDetector)
+							end
+						end)
+						VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+						task.wait(0.05)
+						VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+						task.wait(0.05)
+						local fruitScreenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(fruitPos)
+						if onScreen then
+							VirtualInputManager:SendMouseButtonEvent(fruitScreenPos.X, fruitScreenPos.Y, 0, true, game, 0)
+							task.wait(0.05)
+							VirtualInputManager:SendMouseButtonEvent(fruitScreenPos.X, fruitScreenPos.Y, 0, false, game, 0)
+							task.wait(0.05)
+						end
+					end
+				end
+
+				task.wait(0.3)
+			end
+		end)
+	end
+
 	toggleBtn.MouseButton1Click:Connect(function()
 		if dragMoved then
 			dragMoved = false
 			return
 		end
-		active = not active
 		if active then
-			toggleBtn.Text = "开"
-			toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+			stopPick()
 		else
-			toggleBtn.Text = "关"
-			toggleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+			startPick()
 		end
 	end)
 
