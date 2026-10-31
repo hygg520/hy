@@ -23,11 +23,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/英雄随机生成.txt"))()
 ```
 
-### 举起一个立方体
-```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/举起一个立方体.txt"))()
-```
-
 ### 尺寸传奇模拟器
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/尺寸传奇模拟器.txt"))()
@@ -58,11 +53,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/偷一个蛋.txt"))()
 ```
 
-### 免费弹出
-```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/免费弹出.txt"))()
-```
-
 ### 将球踢向外太空
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/将球踢向外太空.txt"))()
@@ -76,6 +66,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads
 ### 超高速跑者
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/超高速跑者.txt"))()
+```
+
+### 索尔随机生成
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hygg520/hy/refs/heads/main/索尔rng.txt"))()
 ```
 
 ### 26.10.11更新了一些PlaceId检查
